@@ -1,0 +1,43 @@
+#!/bin/bash
+#
+# This script opens a gnome-terminal in the directory you select.
+#
+# Distributed under the terms of GNU GPL version 2 or later
+#
+# Install in ~/.gnome2/nautilus-scripts or ~/Nautilus/scripts
+# You need to be running Nautilus 1.0.3+ to use scripts.
+
+# When a directory is selected, go there. Otherwise go to current
+# directory. If more than one directory is selected, show error.
+
+if [ -n "$NAUTILUS_SCRIPT_SELECTED_FILE_PATHS" ]; then
+	set `$NAUTILUS_SCRIPT_SELECTED_FILE_PATHS`
+	OLD_IFS="$IFS"
+	IFS=$'\n' #更改IFS值为$’\n’ ，注意，以回车做为分隔符，IFS必须为：$’\n’ 
+	for _path in $NAUTILUS_SCRIPT_SELECTED_FILE_PATHS
+	do
+		destination=$_path
+		#zenity --error --title="Error - Open terminal here" --text="path:$destination"
+		# Go to file's directory if it's a file
+		if [ -d "$destination" ]; then
+			#zenity --error --title="Error - Open terminal here" --text="d:$destination"
+			exec gnome-terminal -x bash -c  "cd '$destination';exec bash" &
+		elif [ -f "$destination" ] && [ -x "$destination" ]; then
+			#zenity --error --title="Error - Open terminal here" --text="x:$destination"
+			exec gnome-terminal -x "$destination" &
+		elif [ -f "$destination" ]; then
+			#zenity --error --title="Error - Open terminal here" --text="f:$destination"
+			destination="`dirname "$destination"`"		
+			exec gnome-terminal -x bash -c  "cd '$destination';exec bash" &
+		fi
+	done
+	IFS="$OLD_IFS"
+else
+	#zenity --error --title="Error - Open terminal here" --text="uri:$NAUTILUS_SCRIPT_CURRENT_URI"
+	destination="`echo "$NAUTILUS_SCRIPT_CURRENT_URI" | sed 's/^file:\/\///'`"
+	#zenity --error --title="Error - Open terminal here" --text="uri2:$destination"
+	cd "$destination"
+	#exec gnome-terminal -x bash -c  "cd '$destination';exec bash" &
+	exec gnome-terminal &
+fi
+exit 0

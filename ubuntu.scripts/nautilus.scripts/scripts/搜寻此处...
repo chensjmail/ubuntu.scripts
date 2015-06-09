@@ -1,0 +1,14 @@
+#!/bin/bash
+destination=""	
+if [ -n "$NAUTILUS_SCRIPT_SELECTED_FILE_PATHS" ]; then	
+	#zenity --info --title="1" --text="1"
+	#zenity --info --title="1" --text="$NAUTILUS_SCRIPT_SELECTED_FILE_PATHS"
+	gnome-search-tool --path="`echo \"$NAUTILUS_SCRIPT_SELECTED_FILE_PATHS\"`" &
+else
+	#zenity --info --title="1" --text="2"
+	#zenity --info --title="1" --text="$PWD"
+	gnome-search-tool --path="`echo \"$PWD\"`" &
+fi
+#destination="`echo "$NAUTILUS_SCRIPT_CURRENT_URI" | sed 's/^file:\/\///'`"
+#destination="$(echo $destination | sed 's/ /\\\\ /g')"
+

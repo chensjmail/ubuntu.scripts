@@ -1,0 +1,37 @@
+#!/bin/bash
+#zenity --info --text "$NAUTILUS_SCRIPT_SELECTED_FILE_PATHS"
+file_paths_list=""
+OLD_IFS="$IFS"
+IFS=$'\n' #更改IFS值为$’\n’ ，注意，以回车做为分隔符，IFS必须为：$’\n’ 
+i=0;
+for _path in $NAUTILUS_SCRIPT_SELECTED_FILE_PATHS
+do
+	#zenity --error --text "path:$_path"
+	if [ -f "$_path" ] || [ -d "$_path" ]; then
+		if [ -n "$file_paths_list" ]; then
+			file_paths_list="$file_paths_list " #加空格分隔
+		fi
+		file_paths_list="${file_paths_list}'$_path'"
+		((i++))
+	else
+		zenity --error --text "文件或目录: “$_path” 不存在!"
+		exit 1
+	fi
+	if [ $i -eq 3 ]; then #meld只允许三个比较对象
+		break
+	fi
+	
+done
+IFS="$OLD_IFS"
+program=meld
+#main function
+if [ "$file_paths_list" = "" ];then
+     zenity --info --text "No files Selected!"
+     exit 1
+else
+	#zenity --error --text "file list:$file_paths_list"
+	# Run
+	exec bash -c "meld $file_paths_list"
+fi
+
+exit 0
